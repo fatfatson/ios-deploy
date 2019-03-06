@@ -47,8 +47,14 @@ const char* lldb_prep_interactive_cmds = "\
     run\n\
 ";
 
-const char* lldb_prep_noninteractive_justlaunch_cmds = "\
+const char* lldb_prep_noninteractive_stop_cmds = "\
     run\n\
+    kill\n\
+    safequit\n\
+";
+
+const char* lldb_prep_noninteractive_justlaunch_cmds = "\
+    run abcd 1234\n\
     safequit\n\
 ";
 
@@ -83,6 +89,7 @@ char const*upload_pathname = NULL;
 char *bundle_id = NULL;
 bool interactive = true;
 bool justlaunch = false;
+bool stopapp = false;
 char *app_path = NULL;
 char *device_id = NULL;
 char *args = NULL;
@@ -712,7 +719,9 @@ void write_lldb_prep_cmds(AMDeviceRef device, CFURLRef disk_app_url) {
     const char* extra_cmds;
     if (!interactive)
     {
-        if (justlaunch)
+        if(stopapp)
+            extra_cmds = lldb_prep_noninteractive_stop_cmds;
+        else if (justlaunch)
           extra_cmds = lldb_prep_noninteractive_justlaunch_cmds;
         else
           extra_cmds = lldb_prep_noninteractive_cmds;
@@ -1804,7 +1813,7 @@ int main(int argc, char *argv[]) {
     };
     int ch;
 
-    while ((ch = getopt_long(argc, argv, "VmcdvunNrILeD:R:i:b:a:t:g:x:p:1:2:o:l::w::9::B::W", longopts, NULL)) != -1)
+    while ((ch = getopt_long(argc, argv, "VmcdvunNrILSeD:R:i:b:a:t:g:x:p:1:2:o:l::w::9::B::W", longopts, NULL)) != -1)
     {
         switch (ch) {
         case 'm':
@@ -1841,6 +1850,12 @@ int main(int argc, char *argv[]) {
             break;
         case 'I':
             interactive = false;
+            debug = true;
+            break;
+        case 'S':
+            stopapp = true;
+            interactive = false;
+            justlaunch = false;
             debug = true;
             break;
         case 'L':

@@ -55,7 +55,12 @@ def run_command(debugger, command, result, internal_dict):
     #This env variable makes NSLog, CFLog and os_log messages get mirrored to stderr
     #https://stackoverflow.com/a/39581193 
     launchInfo.SetEnvironmentEntries(['OS_ACTIVITY_DT_MODE=enable'], True)
-    
+    if lldb.target.process.IsValid():
+        print 'kill exist process',lldb.target.process
+        #lldb.target.process.Destroy()
+    else:
+        print 'found not exist'
+
     lldb.target.Launch(launchInfo, error)
     lockedstr = ': Locked'
     if lockedstr in str(error):
