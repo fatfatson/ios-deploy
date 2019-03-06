@@ -61,6 +61,13 @@ def run_command(debugger, command, result, internal_dict):
     else:
         print 'found not exist'
 
+
+    envs_arr = []
+    if len(args) > 1:
+        envs_arr = shlex.split(args[1])
+    envs_arr = envs_arr + shlex.split('{envs}')
+    launchInfo.SetEnvironmentEntries(envs_arr, True)
+    
     lldb.target.Launch(launchInfo, error)
     lockedstr = ': Locked'
     if lockedstr in str(error):
